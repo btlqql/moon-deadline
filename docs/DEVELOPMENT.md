@@ -15,4 +15,4 @@ bff6a39 | 2026-10-31T19:51:34+08:00 | Add executable regression fixtures and adv
 b0008ff | 2026-10-31T19:55:26+08:00 | Document complete runnable workflows, ecosystem differences and Markdown applications for release
 ```
 
-公开官网当前仍显示十月。此前驳回记录要求“9月1日后至少10次”，本项目在该起算日期之后；若十一月要求11月1日起计算，则当前10月31日提交不属于十一月新增，不能更改时间冒充。
+用户本轮明确确认：比赛要求为每个参赛仓库至少10次提交，没有另列起始或截止时间。本项目按仓库真实历史计数，不再将旧通知的9月1日或假设的11月1日另作本轮门槛。
