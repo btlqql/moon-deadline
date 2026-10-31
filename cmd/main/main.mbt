@@ -58,20 +58,7 @@ fn main {
 
 ///|
 fn execute(j : Json) -> Json raise {
-  let tasks : Array[@core.Task] = []
-  for item in arr(field(j, "tasks")) {
-    guard field(item, "name") is String(name) else {
-      fail("expected task name")
-    }
-    tasks.push({
-      name,
-      cost: integer(field(item, "cost")),
-      period: integer(field(item, "period")),
-      deadline: integer(field(item, "deadline")),
-      jitter: integer(field(item, "jitter")),
-      blocking: integer(field(item, "blocking")),
-    })
-  }
+  let tasks = parse_tasks(field(j, "tasks"))
   let horizon = integer(field(j, "horizon"))
   let response = @core.fixed_priority(tasks).map(fn(r) {
     Json::object({
@@ -141,6 +128,23 @@ fn execute(j : Json) -> Json raise {
   } else {
     Json::null()
   }
+  let comparison = if j is Object(fields) && fields.get("before") is Some(old) {
+    Json(
+      @core.compare(parse_tasks(old), tasks).map(fn(c) {
+        Json::object({
+          "name": Json(c.name),
+          "before_feasible": Json(c.before_feasible),
+          "after_feasible": Json(c.after_feasible),
+          "before_upper": Json(c.before_upper),
+          "after_upper": Json(c.after_upper),
+          "slack_before": Json(c.slack_before),
+          "slack_after": Json(c.slack_after),
+        })
+      }),
+    )
+  } else {
+    Json::null()
+  }
   Json::object({
     "ok": Json(true),
     "response": Json(response),
@@ -149,5 +153,25 @@ fn execute(j : Json) -> Json raise {
     "horizon": Json(horizon),
     "window_only": Json(true),
     "planning": planning,
+    "comparison": comparison,
   })
+}
+
+///|
+fn parse_tasks(j : Json) -> Array[@core.Task] raise {
+  let tasks : Array[@core.Task] = []
+  for item in arr(j) {
+    guard field(item, "name") is String(name) else {
+      fail("expected task name")
+    }
+    tasks.push({
+      name,
+      cost: integer(field(item, "cost")),
+      period: integer(field(item, "period")),
+      deadline: integer(field(item, "deadline")),
+      jitter: integer(field(item, "jitter")),
+      blocking: integer(field(item, "blocking")),
+    })
+  }
+  tasks
 }
