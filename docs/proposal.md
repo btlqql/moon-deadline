@@ -2,15 +2,15 @@
 
 面向实时任务配置变更的响应时间与预算分析工具
 
-版本：0.2.0（本地） | 主要语言：MoonBit | 许可：Apache-2.0 | 日期：2026-10-31
+版本：0.3.0 | 主要语言：MoonBit | 许可：Apache-2.0 | 日期：2026-10-31
 
-申报人及团队信息由本人填写；本轮未确认。当前未创建公开仓库或发布公共包。
+GitHub账号：btlqql；项目仓库：https://github.com/btlqql/moon-deadline；公共模块：btlqql/moon_deadline@0.3.0。团队身份按本人报名信息填写。
 
 ## 一、项目名称与摘要
 
 MoonDeadline以MoonBit实现单处理器固定优先级可抢占任务的响应时间分析、优先级分配和执行预算搜索。调用者输入任务名、执行预算、周期、相对截止期、释放抖动与阻塞上界，得到逐步干扰迭代、任务是否满足截止期，以及可复查的调度轨迹。
 
-项目将分析核心连接为任务配置文件到结果的CLI流程。此次0.2.0新增Audsley最低优先级逐层分配与单任务最大可行整数执行预算搜索，并区分收敛的响应时间上界与已经超过截止期的迭代值，避免把分析失败值当作保证。
+项目将分析核心连接为任务配置文件到结果的CLI流程。此次0.3.0新增Audsley最低优先级逐层分配与单任务最大可行整数执行预算搜索，并区分收敛的响应时间上界与已经超过截止期的迭代值，避免把分析失败值当作保证。
 
 ## 二、选题背景与实际使用场景
 
@@ -36,6 +36,8 @@ maximum_cost固定优先级及其他任务预算，利用可行性对目标cost�
 
 轨迹采用同步周期释放、固定优先级、零抖动和零阻塞，保留超时任务；遇到未完成作业与新释放重叠时停止并标明实际覆盖长度，不丢弃积压作业后继续声称仿真完整。EDF窗口枚举处理器需求，返回首个超载区间；窗口无反例不自动等于全时域可行。
 
+新增compare接口与CLI的before输入，按稳定任务名匹配不同优先级顺序，输出前后是否通过、收敛上界与余量；失败迭代不参与余量计算。
+
 ## 五、与相关能力的区别及独立贡献
 
 moonbitJobShop针对制造工序和设备排程，moonrecur/moon_cron针对日历触发，moon-netcalculus针对流体到达与服务曲线。本项目对象是CPU抢占任务、截止期与执行预算，不将已有日历、作业车间或网络演算能力描述为空白。
@@ -50,13 +52,17 @@ moonbitJobShop针对制造工序和设备排程，moonrecur/moon_cron针对日�
 
 CLI同时返回response_upper_bound和exceeded_deadline_iterate；只有收敛且满足截止期时前者非空。Int64输出为十进制字符串保持整数精度。ok=true表示分析执行成功，超时结果仍需读取meets_deadline；非法模型或计算失败退出1。上述案例均为自制软件模型。
 
+新增可复现文件：examples/config-regression.json。slow优先于urgent时urgent超时；改为urgent、slow后响应分别为1、3。配置比较把失败结果保留为空上界，urgent新余量为1。
+
 ## 七、正确性验证与独立参考
 
-当前5项MoonBit测试，在Windows本地JS、Wasm、Wasm-GC分别通过，共15次测试执行；核心check --target all --deny-warn通过，JS CLI构建与示例实际执行。native没有实际运行，静态check不作为运行证明。
+当前8项MoonBit测试，在Windows本地JS、Wasm、Wasm-GC分别通过，共24次本地测试执行；核心check --target all --deny-warn通过，JS CLI构建与示例实际执行。native没有实际运行，静态check不作为运行证明。
 
 基础独立对照包含80组任务模型：Python按每个时间tick调度各优先级前缀，核对RTA的成功响应时间和是否超时；另以作业释放与截止期枚举核对EDF需求反例。复核新增32组模型，穷举全部任务优先级排列，核对分配是否存在，并对全部整数cost逐项穷举核对预算搜索。
 
 模型使用固定随机种子，验证入口为上级verify.py与review_verify.py，原始结果保存在evidence/validation.json和review-validation.json。批量模型数与测试条目数分别记录，不合并宣传为独立用户案例。
+
+仓库内scripts/verify.py独立验证：48组随机模型：独立逐tick调度、全部优先级排列、全部候选整数cost和按名变更对齐。无需父目录或原工作区。
 
 ## 八、公开接口、使用与当前边界
 
@@ -64,14 +70,11 @@ CLI同时返回response_upper_bound和exceeded_deadline_iterate；只有收敛�
 
 支持范围是单处理器、固定优先级、可抢占、受限截止期任务。多核、非抢占临界区、动态资源锁和RTOS运行日志导入不在当前实现中。EDF和轨迹只说明给定窗口；WCET与阻塞条件必须由使用者保证。零抖动零阻塞下的经典分析与带J/B条件下的充分界分别说明。
 
-## 九、交付内容与验证证据
+## 九、公开交付与复现入口
 
-本地交付含MoonBit源码、公开API文件、JSON CLI、成功与失败示例、5项测试、README、许可证与来源说明。当前模块november/moon_deadline@0.2.0为本地开发命名空间，未公开新仓库、未发布注册表、未运行公共CI，也未提交本轮报名。
+- GitHub仓库：[https://github.com/btlqql/moon-deadline](https://github.com/btlqql/moon-deadline)。
+- MoonCakes模块：[btlqql/moon_deadline@0.3.0](https://mooncakes.io/docs/btlqql/moon_deadline@0.3.0)。
+- 主要代码与测试、README、独立验证脚本、来源许可、JSON示例、生成API均在同一仓库。
+- [公共CI](https://github.com/btlqql/moon-deadline/actions)包含四后端测试，实际完成状态与安装验证记录在发布核验报告，不预写未发生的运行结论。
 
-代码基线、测试原始输出、独立对照与本次复核说明随交付提供。开发使用AI辅助，申报人需要理解模型假设、技术取舍及结果边界；软件验证不是主办方通过回执。
-
-## 代码与材料状态
-
-已验证代码基线：82fd04e1023b08d97fef7d53426d79999137487e
-
-代码目录：projects/moon-deadline。当前为申报参考材料，不是报名或验收回执。十一月细则尚未从公开官网确认。
+GitHub开发历史、公共包发布与比赛报名是不同事项。本项目为AI辅助开发，参赛者负责理解模型、取舍和质量。未代填比赛报名，也没有主办方通过回执。

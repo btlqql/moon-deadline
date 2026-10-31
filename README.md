@@ -1,34 +1,54 @@
 # MoonDeadline
 
-实时系统任务的响应时间分析核心。复核更新0.2.0，模块名november/moon_deadline是本地开发命名空间，尚未在注册表发布。
+实时任务配置回归、响应时间与预算分析，主要业务机制由MoonBit实现，Apache-2.0。
 
-输入按优先级从高到低排列，每项指定name、cost、period、deadline、jitter、blocking；所有时间使用同一个调用者定义的整数单位。支持单处理器、固定优先级、可抢占、相对截止期不超过周期的模型。输入cost是调用者提供的WCET预算，工具不测量或证明WCET。
+修改周期任务预算或优先级后，检查哪个任务变成超时、可用余量如何变化，以及是否存在可行优先级顺序。
 
-已实现fixed_priority、edf_window、simulate、assign_priorities和maximum_cost。完整签名见pkg.generated.mbti。RTA记录每次干扰迭代；jitter相对于名义释放计入端到端界，blocking必须是外部分析给出的阻塞上界。J=B=0且模型假设成立时使用经典响应时间分析；带J/B为对应假设下的充分分析。
+## 可运行任务
 
-运行：
-
-```powershell
-moon run cmd/main --target js -- examples/missed-deadline.json
-moon test --target js --deny-warn
+```sh
+moon run cmd/main --target js -- examples/config-regression.json
+moon run cmd/main --target js -- examples/priority-plan.json
 ```
 
-示例CPU利用率仅30%，但sensor任务deadline=3、响应时间=4，输出meets_deadline=false；EDF在区间3也得到需求4的反例。示例是自制模型，不是设备实测。
+slow优先于urgent时urgent超时；改为urgent、slow后响应分别为1、3。配置比较把失败结果保留为空上界，urgent新余量为1。
 
-CLI的bound和iterations为Int64的JSON十进制字符串，保持整数精度。当meets_deadline=true时bound是收敛的响应时间界；为false时它只是已经超过截止期的迭代值，不能解释为有限响应时间上界。进程退出0表示分析成功执行，超时结果仍需读取meets_deadline；输入/计算失败退出1。
+examples/config-regression.json中的before表示旧配置、tasks表示新配置。optimize=true可同时运行优先级分配和预算搜索。
 
-simulate只接受零抖动零阻塞的同步周期释放；超时后保留反例，不默默丢弃积压作业继续声称有效仿真。EDF窗口无反例只能说明该有限窗口，不能证明全时域可调度。不支持多核、非抢占片段、动态资源锁或真实FreeRTOS trace导入。
+CLI读取JSON文件，ok表示计算执行成功；领域可行性、超时或削波需读取各自字段。Node只读写文件、设置退出码和封装PCM；核心算法不转发给Python/C或外部服务。
 
-任务数1..64；周期/执行量/阻塞上限1,000,000；仿真horizon<=100,000、EDF<=1,000,000。CLI同时调用两者时有效horizon<=100,000。RTA迭代上限10,000，耗尽明确报错。
+## 可复用接口与安装
 
-独立逐tick模型、EDF作业枚举对照与三后端测试由上级目录verify.py执行；结果在../../evidence/validation.json。全目标check与native实际运行分开记录。
+```sh
+moon add btlqql/moon_deadline@0.3.0
+```
 
-算法参考：[Joseph/Pandya 1986](https://doi.org/10.1093/comjnl/29.5.390)。未移植第三方算法代码。相邻项目moonbitJobShop、moonrecur、moon-netcalculus的功能对照见上级制作总方案。Apache-2.0，AI辅助实现。
+在moon.pkg导入`"btlqql/moon_deadline" @core`；完整签名见[pkg.generated.mbti](pkg.generated.mbti)。
 
-## 0.2.0复核增量
+固定优先级RTA、带条件的抖动/阻塞界、EDF窗口需求、同步周期轨迹、Audsley分配、最大整数cost搜索、按任务名对齐的配置变更与已证明余量。
 
-`assign_priorities`按最低优先级逐层分配，限制为J=B=0、最多16任务；`maximum_cost`固定优先级和其他预算，二分求所有任务均通过RTA时的最大整数预算。无可行预算返回None，不能将结果当作测得的WCET。
+## 验证
 
-运行`moon run cmd/main --target js -- examples/priority-plan.json`：原slow优先于urgent时urgent超时；分配结果为urgent、slow。optimize=true输出分配结果及原顺序下各任务可行预算上限。任务数超16或带J/B的优先级优化明确拒绝。
+```sh
+moon check --target all --deny-warn
+moon test --target js --deny-warn
+moon test --target wasm --deny-warn
+moon test --target wasm-gc --deny-warn
+python scripts/verify.py
+```
 
-CLI新增response_upper_bound和exceeded_deadline_iterate，分别表示收敛上界与超时迭代值；旧bound字段保留用于兼容。仿真输出simulated_until和stopped_early，避免把提前停止的轨迹当作完整窗口。
+当前8项MoonBit测试。独立开发对照：48组随机模型：独立逐tick调度、全部优先级排列、全部候选整数cost和按名变更对齐。
+
+脚本只需要Python标准库、Node与MoonBit；可用MOON_BIN指定moon路径。产物保存在本仓库_build/oracle，脚本不下载外部库，不访问相邻工作区。CI覆盖JS/Wasm/Wasm-GC/native，实际运行状态见[Actions](https://github.com/btlqql/moon-deadline/actions)。本地验证和公共CI结论分别记录，不用静态检查冒称native运行。
+
+## 实现边界与来源
+
+单处理器、可抢占、deadline<=period。输入WCET和阻塞上界须由调用者建立依据；窗口无反例不等于全时域可行。优先级分配只接受J=B=0、最多16项任务。没有多核、真实RTOS日志导入或WCET测量。
+
+对照详见[ECOSYSTEM](docs/ECOSYSTEM.md)，归属见[THIRD_PARTY](THIRD_PARTY.md)。实例是软件模型或合成输入，不是生产部署证明。
+
+## 申报与开发记录
+
+[完整版Markdown申报书](docs/proposal.md) | [一页Markdown摘要](docs/proposal-summary.md) | [实际提交历史](https://github.com/btlqql/moon-deadline/commits/main/)
+
+版本0.3.0。GitHub提交保留真实时间与每次文件变化；不以数量替代独立价值和实际质量。十一月规则尚未从公开页面完整确认，开源发布不等于比赛报名或验收通过。
