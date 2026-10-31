@@ -4,6 +4,8 @@ package "btlqql/moon_deadline"
 // Values
 pub fn assign_priorities(Array[Task]) -> Assignment? raise ModelError
 
+pub fn compare(Array[Task], Array[Task]) -> Array[TaskChange] raise ModelError
+
 pub fn edf_window(Array[Task], Int) -> DemandWitness? raise ModelError
 
 pub fn fixed_priority(Array[Task]) -> Array[Response] raise ModelError
@@ -48,6 +50,16 @@ pub(all) struct Task {
   deadline : Int
   jitter : Int
   blocking : Int
+}
+
+pub(all) struct TaskChange {
+  name : String
+  before_feasible : Bool
+  after_feasible : Bool
+  before_upper : Int64?
+  after_upper : Int64?
+  slack_before : Int64?
+  slack_after : Int64?
 }
 
 pub(all) struct Tick {
