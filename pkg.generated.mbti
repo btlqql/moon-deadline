@@ -1,0 +1,51 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "november/moon_deadline"
+
+// Values
+pub fn edf_window(Array[Task], Int) -> DemandWitness? raise ModelError
+
+pub fn fixed_priority(Array[Task]) -> Array[Response] raise ModelError
+
+pub fn simulate(Array[Task], Int) -> Simulation raise ModelError
+
+// Errors
+pub(all) suberror ModelError {
+  InvalidModel
+  ResourceLimit
+}
+
+// Types and methods
+pub(all) struct DemandWitness {
+  interval : Int
+  demand : Int64
+}
+
+pub(all) struct Response {
+  name : String
+  bound : Int64
+  meets_deadline : Bool
+  iterations : Array[Int64]
+}
+
+pub(all) struct Simulation {
+  ticks : Array[Tick]
+  missed_tasks : Array[Int]
+}
+
+pub(all) struct Task {
+  name : String
+  cost : Int
+  period : Int
+  deadline : Int
+  jitter : Int
+  blocking : Int
+}
+
+pub(all) struct Tick {
+  time : Int
+  task : Int
+}
+
+// Type aliases
+
+// Traits

@@ -1,0 +1,21 @@
+{
+  "tasks": [
+    {
+      "name": "control",
+      "cost": 2,
+      "period": 10,
+      "deadline": 2,
+      "jitter": 0,
+      "blocking": 0
+    },
+    {
+      "name": "sensor",
+      "cost": 2,
+      "period": 20,
+      "deadline": 3,
+      "jitter": 0,
+      "blocking": 0
+    }
+  ],
+  "horizon": 40
+}
