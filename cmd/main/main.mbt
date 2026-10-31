@@ -77,6 +77,16 @@ fn execute(j : Json) -> Json raise {
     Json::object({
       "name": Json(r.name),
       "bound": Json(r.bound),
+      "response_upper_bound": if r.meets_deadline {
+        Json(r.bound)
+      } else {
+        Json::null()
+      },
+      "exceeded_deadline_iterate": if r.meets_deadline {
+        Json::null()
+      } else {
+        Json(r.bound)
+      },
       "meets_deadline": Json(r.meets_deadline),
       "iterations": Json(r.iterations),
     })
@@ -88,6 +98,8 @@ fn execute(j : Json) -> Json raise {
     Json::object({
       "missed_tasks": Json(s.missed_tasks),
       "trace": Json(s.ticks.map(fn(t) { t.task })),
+      "simulated_until": Json(s.ticks.length()),
+      "stopped_early": Json(s.ticks.length() < horizon),
     })
   } else {
     Json::null()
@@ -101,6 +113,34 @@ fn execute(j : Json) -> Json raise {
   } else {
     Json::null()
   }
+  let planning = if j is Object(fields) && fields.get("optimize") is Some(True) {
+    let assignment = match @core.assign_priorities(tasks) {
+      None => Json::null()
+      Some(a) =>
+        Json::object({
+          "order": Json(a.order),
+          "names": Json(a.tasks.map(fn(t) { t.name })),
+          "responses": Json(
+            @core.fixed_priority(a.tasks).map(fn(r) { r.bound }),
+          ),
+        })
+    }
+    let budgets : Array[Json] = []
+    for i in 0..<tasks.length() {
+      budgets.push(
+        match @core.maximum_cost(tasks, i) {
+          None => Json::null()
+          Some(v) => Json(v)
+        },
+      )
+    }
+    Json::object({
+      "assignment": assignment,
+      "maximum_cost_in_original_order": Json(budgets),
+    })
+  } else {
+    Json::null()
+  }
   Json::object({
     "ok": Json(true),
     "response": Json(response),
@@ -108,5 +148,6 @@ fn execute(j : Json) -> Json raise {
     "edf_window_witness": demand,
     "horizon": Json(horizon),
     "window_only": Json(true),
+    "planning": planning,
   })
 }

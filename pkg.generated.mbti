@@ -2,9 +2,13 @@
 package "november/moon_deadline"
 
 // Values
+pub fn assign_priorities(Array[Task]) -> Assignment? raise ModelError
+
 pub fn edf_window(Array[Task], Int) -> DemandWitness? raise ModelError
 
 pub fn fixed_priority(Array[Task]) -> Array[Response] raise ModelError
+
+pub fn maximum_cost(Array[Task], Int) -> Int? raise ModelError
 
 pub fn simulate(Array[Task], Int) -> Simulation raise ModelError
 
@@ -15,6 +19,11 @@ pub(all) suberror ModelError {
 }
 
 // Types and methods
+pub(all) struct Assignment {
+  order : Array[Int]
+  tasks : Array[Task]
+}
+
 pub(all) struct DemandWitness {
   interval : Int
   demand : Int64

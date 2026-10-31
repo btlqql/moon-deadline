@@ -1,10 +1,10 @@
 # MoonDeadline
 
-实时系统任务的响应时间分析核心。首批实现，模块名november/moon_deadline是本地开发命名空间，尚未在注册表发布。
+实时系统任务的响应时间分析核心。复核更新0.2.0，模块名november/moon_deadline是本地开发命名空间，尚未在注册表发布。
 
 输入按优先级从高到低排列，每项指定name、cost、period、deadline、jitter、blocking；所有时间使用同一个调用者定义的整数单位。支持单处理器、固定优先级、可抢占、相对截止期不超过周期的模型。输入cost是调用者提供的WCET预算，工具不测量或证明WCET。
 
-已实现fixed_priority、edf_window、simulate三类API。完整签名见pkg.generated.mbti。RTA记录每次干扰迭代；jitter相对于名义释放计入端到端界，blocking必须是外部分析给出的阻塞上界。J=B=0且模型假设成立时使用经典响应时间分析；带J/B为对应假设下的充分分析。
+已实现fixed_priority、edf_window、simulate、assign_priorities和maximum_cost。完整签名见pkg.generated.mbti。RTA记录每次干扰迭代；jitter相对于名义释放计入端到端界，blocking必须是外部分析给出的阻塞上界。J=B=0且模型假设成立时使用经典响应时间分析；带J/B为对应假设下的充分分析。
 
 运行：
 
@@ -24,3 +24,11 @@ simulate只接受零抖动零阻塞的同步周期释放；超时后保留反例
 独立逐tick模型、EDF作业枚举对照与三后端测试由上级目录verify.py执行；结果在../../evidence/validation.json。全目标check与native实际运行分开记录。
 
 算法参考：[Joseph/Pandya 1986](https://doi.org/10.1093/comjnl/29.5.390)。未移植第三方算法代码。相邻项目moonbitJobShop、moonrecur、moon-netcalculus的功能对照见上级制作总方案。Apache-2.0，AI辅助实现。
+
+## 0.2.0复核增量
+
+`assign_priorities`按最低优先级逐层分配，限制为J=B=0、最多16任务；`maximum_cost`固定优先级和其他预算，二分求所有任务均通过RTA时的最大整数预算。无可行预算返回None，不能将结果当作测得的WCET。
+
+运行`moon run cmd/main --target js -- examples/priority-plan.json`：原slow优先于urgent时urgent超时；分配结果为urgent、slow。optimize=true输出分配结果及原顺序下各任务可行预算上限。任务数超16或带J/B的优先级优化明确拒绝。
+
+CLI新增response_upper_bound和exceeded_deadline_iterate，分别表示收敛上界与超时迭代值；旧bound字段保留用于兼容。仿真输出simulated_until和stopped_early，避免把提前停止的轨迹当作完整窗口。
