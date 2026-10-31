@@ -1,5 +1,5 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "november/moon_deadline"
+package "btlqql/moon_deadline"
 
 // Values
 pub fn assign_priorities(Array[Task]) -> Assignment? raise ModelError
