@@ -1,0 +1,39 @@
+{
+  "before": [
+    {
+      "name": "slow",
+      "cost": 2,
+      "period": 10,
+      "deadline": 10,
+      "jitter": 0,
+      "blocking": 0
+    },
+    {
+      "name": "urgent",
+      "cost": 1,
+      "period": 4,
+      "deadline": 2,
+      "jitter": 0,
+      "blocking": 0
+    }
+  ],
+  "tasks": [
+    {
+      "name": "urgent",
+      "cost": 1,
+      "period": 4,
+      "deadline": 2,
+      "jitter": 0,
+      "blocking": 0
+    },
+    {
+      "name": "slow",
+      "cost": 2,
+      "period": 10,
+      "deadline": 10,
+      "jitter": 0,
+      "blocking": 0
+    }
+  ],
+  "horizon": 40
+}
