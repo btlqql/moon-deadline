@@ -56,11 +56,11 @@ CLI同时返回response_upper_bound和exceeded_deadline_iterate；只有收敛�
 
 ## 七、正确性验证与独立参考
 
-当前8项MoonBit测试，在Windows本地JS、Wasm、Wasm-GC分别通过，共24次本地测试执行；核心check --target all --deny-warn通过，JS CLI构建与示例实际执行。native没有实际运行，静态check不作为运行证明。
+当前8项MoonBit测试，在Windows本地JS、Wasm、Wasm-GC分别通过，共24次本地测试执行；核心check --target all --deny-warn通过，JS CLI构建与示例实际执行。native实际执行来自当前代码基线的公共CI，本地静态check不作为运行证明。
 
 基础独立对照包含80组任务模型：Python按每个时间tick调度各优先级前缀，核对RTA的成功响应时间和是否超时；另以作业释放与截止期枚举核对EDF需求反例。复核新增32组模型，穷举全部任务优先级排列，核对分配是否存在，并对全部整数cost逐项穷举核对预算搜索。
 
-模型使用固定随机种子，验证入口为上级verify.py与review_verify.py，原始结果保存在evidence/validation.json和review-validation.json。批量模型数与测试条目数分别记录，不合并宣传为独立用户案例。
+模型使用固定随机种子，当前独立入口为scripts/verify.py，结果写入_build/oracle/result.json；前两轮历史对照记录另随本地交付保留。批量模型数与测试条目数分别记录，不合并宣传为独立用户案例。
 
 仓库内scripts/verify.py独立验证：48组随机模型：独立逐tick调度、全部优先级排列、全部候选整数cost和按名变更对齐。无需父目录或原工作区。
 
@@ -78,3 +78,7 @@ CLI同时返回response_upper_bound和exceeded_deadline_iterate；只有收敛�
 - [公共CI](https://github.com/btlqql/moon-deadline/actions)包含四后端测试，实际完成状态与安装验证记录在发布核验报告，不预写未发生的运行结论。
 
 GitHub开发历史、公共包发布与比赛报名是不同事项。本项目为AI辅助开发，参赛者负责理解模型、取舍和质量。未代填比赛报名，也没有主办方通过回执。
+
+## 当前公共验证基线
+
+已验证代码提交：b0008ff116e3d482b2637613a88f87b2add2f697；[四后端CI](https://github.com/btlqql/moon-deadline/actions/runs/41198960038)已实际完成。三个纯核心可在四后端测试，文件CLI为JS宿主。注册表发布和独立安装状态以配套发布核验记录为准。
