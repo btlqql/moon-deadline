@@ -22,9 +22,11 @@ def main():
     parser.add_argument('--timeout', type=int, default=180)
     parser.add_argument('--output', type=Path, default=ROOT / '_build/rtos')
     parser.add_argument('--build-only', action='store_true')
+    parser.add_argument('--verbose', action='store_true', help='Print the complete UART trace')
+    parser.add_argument('--fault', choices=['stack','allocation'], help='Require a real guard failure (negative test)')
     a = parser.parse_args()
     ticks = a.ticks or (150010 if a.scenario == 5 else 100)
-    out = a.output.resolve() / f'scenario-{a.scenario}'
+    out = a.output.resolve() / (f'scenario-{a.scenario}' + ('-'+a.fault if a.fault else ''))
     out.mkdir(parents=True, exist_ok=True)
     home = Path(os.environ.get('MOON_HOME', 'D:/Codex/toolchains/moon-20261018' if os.name == 'nt' else str(Path.home()/'.moon')))
     moonc = home / 'bin' / ('moonc.exe' if os.name == 'nt' else 'moonc')
@@ -38,7 +40,8 @@ def main():
     run([moonc, 'link-core', bundle/'abort/abort.core', bundle/'core.core', out/'rtos.core', out/'bare.core', '-main', 'btlqql/moon_deadline_firmware', '-o', generated, '-target', 'native', '-pkg-config-path', ROOT/'firmware/moon.pkg'])
     port = ROOT/'ports/cortex-m3'
     elf = out/'firmware.elf'
-    run([gcc, '-mcpu=cortex-m3', '-mthumb', '-Os', '-ffreestanding', '-fno-builtin', '-fwrapv', '-fno-strict-aliasing', '-ffunction-sections', '-fdata-sections', '-DMOONBIT_NATIVE_NO_SYS_HEADER', f'-DSCENARIO={a.scenario}', f'-DRUN_TICKS={ticks}', '-I', home/'include', '-nostdlib', '-Wl,--gc-sections', '-Wl,-Map='+str(out/'firmware.map'), '-T', port/'link.ld', port/'port.c', port/'runtime.c', port/'context.S', generated, '-lgcc', '-o', elf])
+    fault_flags = ['-DINJECT_'+a.fault.upper()+'_FAULT'] if a.fault else []
+    run([gcc, '-mcpu=cortex-m3', '-mthumb', '-Os', '-ffreestanding', '-fno-builtin', '-fwrapv', '-fno-strict-aliasing', '-ffunction-sections', '-fdata-sections', '-DMOONBIT_NATIVE_NO_SYS_HEADER', *fault_flags, f'-DSCENARIO={a.scenario}', f'-DRUN_TICKS={ticks}', '-I', home/'include', '-nostdlib', '-Wl,--gc-sections', '-Wl,-Map='+str(out/'firmware.map'), '-T', port/'link.ld', port/'port.c', port/'runtime.c', port/'context.S', generated, '-lgcc', '-o', elf])
     manifest = {'scenario':a.scenario, 'ticks':ticks, 'elf_sha256':hashlib.sha256(elf.read_bytes()).hexdigest(), 'gcc':run([gcc,'--version'],capture_output=True,text=True).stdout.splitlines()[0], 'moonc':run([moonc,'-v'],capture_output=True,text=True).stdout.strip(), 'qemu':run([qemu,'--version'],capture_output=True,text=True).stdout.splitlines()[0], 'platform':'QEMU mps2-an385 Cortex-M3; not a physical board'}
     if not a.build_only:
         start=time.monotonic()
@@ -46,9 +49,15 @@ def main():
         output=result.stdout+result.stderr
         (out/'uart.log').write_text(output,encoding='utf-8')
         manifest.update(exit_code=result.returncode,wall_seconds=round(time.monotonic()-start,3))
+        manifest['expected_panic'] = {'stack':72,'allocation':81}.get(a.fault)
         (out/'result.json').write_text(json.dumps(manifest,indent=2),encoding='utf-8')
-        print(output)
-        if result.returncode or 'RTOS_PASS' not in output:
+        print(output if a.verbose else '\n'.join(line for line in output.splitlines() if not line.startswith('TRACE ')))
+        if a.fault:
+            expected = f"PANIC {manifest['expected_panic']}\n"
+            if result.returncode == 0 or expected not in output or 'RTOS_PASS' in output:
+                raise SystemExit('Expected guard failure was not detected')
+            print('GUARD_REJECTION_PASS')
+        elif result.returncode or 'RTOS_PASS' not in output:
             raise SystemExit('Firmware validation failed; see uart.log')
     else:
         (out/'result.json').write_text(json.dumps(manifest,indent=2),encoding='utf-8')

@@ -127,6 +127,12 @@ static void finish(void){
 void SysTick_Handler(void){
  if(!started)return;
  uint32_t mask=irq_save();port_ticks++;
+#ifdef INJECT_STACK_FAULT
+ if(port_ticks==2)stacks[1][0]=0;
+#endif
+#ifdef INJECT_ALLOCATION_FAULT
+ if(port_ticks==2){extern void *malloc(size_t);volatile void*p=malloc(16);(void)p;}
+#endif
  rt_tick();record(4,current,0);
  if(SCENARIO==3&&port_ticks<=40&&port_ticks%2==0)rt_give(0);
  if(SCENARIO==4&&port_ticks==3)rt_give(0);

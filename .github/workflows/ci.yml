@@ -1,7 +1,7 @@
 name: CI
 on:
   push:
-    branches: [main]
+    branches: [main, rtos-runtime]
   pull_request:
 permissions:
   contents: read
@@ -28,3 +28,26 @@ jobs:
       - name: Independent oracle and CLI file workflows
         if: matrix.target == 'js'
         run: python scripts/verify.py
+  cortex-m3:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: hustcer/setup-moonbit@87e2bdf5cf20d3b6f5c5f266a8a513f503bb5b76
+      - name: Install Cortex-M3 compiler and emulator
+        run: sudo apt-get update -qq && sudo apt-get install -y gcc-arm-none-eabi qemu-system-arm
+      - name: Boot and verify five bare-metal scenarios
+        run: |
+          for scenario in 1 2 3 4 5; do
+            python scripts/rtos.py --scenario "$scenario"
+          done
+          python scripts/rtos.py --fault stack
+          python scripts/rtos.py --fault allocation
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: cortex-m3-firmware-and-uart
+          path: _build/rtos/
