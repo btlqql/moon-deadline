@@ -1,0 +1,155 @@
+{
+  "source_head": "b6ebd5a0bb01f6927ba3e99414d4d4df490a0ac0",
+  "platform": "QEMU MPS2 AN385 Cortex-M3; no physical-board validation",
+  "positive_cases": 5,
+  "expected_guard_rejections": 2,
+  "results": [
+    {
+      "scenario": 1,
+      "ticks": 100,
+      "elf_sha256": "cec7b73595fe9f77ddca9938b1d30fb512beaf01d1c5a6a3f515237d09366bdb",
+      "gcc": "arm-none-eabi-gcc.exe (xPack GNU Arm Embedded GCC x86_64) 15.2.1 20251203",
+      "moonc": "v0.10.15+943464bfa (2026-10-12)",
+      "qemu": "xPack QEMU emulator version 9.2.4",
+      "platform": "QEMU mps2-an385 Cortex-M3; not a physical board",
+      "exit_code": 0,
+      "wall_seconds": 0.04,
+      "expected_panic": null,
+      "name": "scenario-1",
+      "metrics": {
+        "SCENARIO": 1,
+        "TICKS": 100,
+        "SWITCHES": 46,
+        "CHECKS": 8,
+        "HEAP_BYTES": 1488,
+        "BOOT_ALLOCS": 19,
+        "TRACE_STORED": 214,
+        "TRACE_DROPPED": 0
+      }
+    },
+    {
+      "scenario": 2,
+      "ticks": 100,
+      "elf_sha256": "5dbe0315a269f7bcb7667b6851f14d7476d0cc74f9ecf12d694e6f46fe7a5750",
+      "gcc": "arm-none-eabi-gcc.exe (xPack GNU Arm Embedded GCC x86_64) 15.2.1 20251203",
+      "moonc": "v0.10.15+943464bfa (2026-10-12)",
+      "qemu": "xPack QEMU emulator version 9.2.4",
+      "platform": "QEMU mps2-an385 Cortex-M3; not a physical board",
+      "exit_code": 0,
+      "wall_seconds": 0.04,
+      "expected_panic": null,
+      "name": "scenario-2",
+      "metrics": {
+        "SCENARIO": 2,
+        "TICKS": 100,
+        "SWITCHES": 10,
+        "CHECKS": 8,
+        "HEAP_BYTES": 1488,
+        "BOOT_ALLOCS": 19,
+        "TRACE_STORED": 224,
+        "TRACE_DROPPED": 0
+      }
+    },
+    {
+      "scenario": 3,
+      "ticks": 100,
+      "elf_sha256": "82a547ae5590ead35a9003fae2a08d4bda0815c96077087eaef763cd3ce4e691",
+      "gcc": "arm-none-eabi-gcc.exe (xPack GNU Arm Embedded GCC x86_64) 15.2.1 20251203",
+      "moonc": "v0.10.15+943464bfa (2026-10-12)",
+      "qemu": "xPack QEMU emulator version 9.2.4",
+      "platform": "QEMU mps2-an385 Cortex-M3; not a physical board",
+      "exit_code": 0,
+      "wall_seconds": 0.042,
+      "expected_panic": null,
+      "name": "scenario-3",
+      "metrics": {
+        "SCENARIO": 3,
+        "TICKS": 100,
+        "SWITCHES": 84,
+        "CHECKS": 140,
+        "HEAP_BYTES": 1488,
+        "BOOT_ALLOCS": 19,
+        "TRACE_STORED": 466,
+        "TRACE_DROPPED": 0
+      }
+    },
+    {
+      "scenario": 4,
+      "ticks": 100,
+      "elf_sha256": "46007ca54a78400e695f5d06fd96dad94d439b359418d63190056de4f4ac6453",
+      "gcc": "arm-none-eabi-gcc.exe (xPack GNU Arm Embedded GCC x86_64) 15.2.1 20251203",
+      "moonc": "v0.10.15+943464bfa (2026-10-12)",
+      "qemu": "xPack QEMU emulator version 9.2.4",
+      "platform": "QEMU mps2-an385 Cortex-M3; not a physical board",
+      "exit_code": 0,
+      "wall_seconds": 0.042,
+      "expected_panic": null,
+      "name": "scenario-4",
+      "metrics": {
+        "SCENARIO": 4,
+        "TICKS": 100,
+        "SWITCHES": 11,
+        "CHECKS": 9,
+        "HEAP_BYTES": 1488,
+        "BOOT_ALLOCS": 19,
+        "TRACE_STORED": 224,
+        "TRACE_DROPPED": 0
+      }
+    },
+    {
+      "scenario": 5,
+      "ticks": 150010,
+      "elf_sha256": "36a8503a2468959f1630fe5ff6e5e8eb9a3e2100b28340e3fac9ba82418f87b2",
+      "gcc": "arm-none-eabi-gcc.exe (xPack GNU Arm Embedded GCC x86_64) 15.2.1 20251203",
+      "moonc": "v0.10.15+943464bfa (2026-10-12)",
+      "qemu": "xPack QEMU emulator version 9.2.4",
+      "platform": "QEMU mps2-an385 Cortex-M3; not a physical board",
+      "exit_code": 0,
+      "wall_seconds": 2.942,
+      "expected_panic": null,
+      "name": "scenario-5",
+      "metrics": {
+        "SCENARIO": 5,
+        "TICKS": 150010,
+        "SWITCHES": 150012,
+        "CHECKS": 3,
+        "HEAP_BYTES": 1488,
+        "BOOT_ALLOCS": 19,
+        "TRACE_STORED": 4096,
+        "TRACE_DROPPED": 295933
+      }
+    },
+    {
+      "scenario": 1,
+      "ticks": 100,
+      "elf_sha256": "10e611832b67ef4313915aa1761eadd0e4b9c2be8db3f8946fa3b607ea8e6b76",
+      "gcc": "arm-none-eabi-gcc.exe (xPack GNU Arm Embedded GCC x86_64) 15.2.1 20251203",
+      "moonc": "v0.10.15+943464bfa (2026-10-12)",
+      "qemu": "xPack QEMU emulator version 9.2.4",
+      "platform": "QEMU mps2-an385 Cortex-M3; not a physical board",
+      "exit_code": 1,
+      "wall_seconds": 0.03,
+      "expected_panic": 72,
+      "name": "scenario-1-stack",
+      "metrics": {
+        "PANIC": 72
+      }
+    },
+    {
+      "scenario": 1,
+      "ticks": 100,
+      "elf_sha256": "003a8f97e55cd01785af6aa5ed81804d453a44a8d74a5d19e1327b0cbf511d31",
+      "gcc": "arm-none-eabi-gcc.exe (xPack GNU Arm Embedded GCC x86_64) 15.2.1 20251203",
+      "moonc": "v0.10.15+943464bfa (2026-10-12)",
+      "qemu": "xPack QEMU emulator version 9.2.4",
+      "platform": "QEMU mps2-an385 Cortex-M3; not a physical board",
+      "exit_code": 1,
+      "wall_seconds": 0.031,
+      "expected_panic": 81,
+      "name": "scenario-1-allocation",
+      "metrics": {
+        "PANIC": 81
+      }
+    }
+  ]
+}

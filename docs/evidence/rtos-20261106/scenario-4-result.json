@@ -1,0 +1,12 @@
+{
+  "scenario": 4,
+  "ticks": 100,
+  "elf_sha256": "46007ca54a78400e695f5d06fd96dad94d439b359418d63190056de4f4ac6453",
+  "gcc": "arm-none-eabi-gcc.exe (xPack GNU Arm Embedded GCC x86_64) 15.2.1 20251203",
+  "moonc": "v0.10.15+943464bfa (2026-10-12)",
+  "qemu": "xPack QEMU emulator version 9.2.4",
+  "platform": "QEMU mps2-an385 Cortex-M3; not a physical board",
+  "exit_code": 0,
+  "wall_seconds": 0.042,
+  "expected_panic": null
+}

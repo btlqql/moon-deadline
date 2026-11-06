@@ -1,15 +1,33 @@
-# 验证记录
+# 运行验证记录
 
-版本0.3.0；8项MoonBit测试，本地JS/Wasm/Wasm-GC各8项通过。
+验证日期：2026-11-06。平台：Windows 上的 QEMU MPS2 AN385 / Cortex-M3；本地无实体板。原始 UART、工具版本和 ELF SHA256 位于 [evidence/rtos-20261106/summary.json](evidence/rtos-20261106/summary.json) 及同目录。原始日志由实际执行结果收集，不由预期数值生成。
 
-[代码基线四后端CI](https://github.com/btlqql/moon-deadline/actions/runs/41198960038)：`b0008ff116e3d482b2637613a88f87b2add2f697`。
+## 裸机执行
 
-公共CI的JS、Wasm、Wasm-GC、native四个job均实际成功；其中JS执行独立脚本及文件流程。
+| 场景 | ticks | 任务身份切换 | 任务断言 | 结果 |
+|---|---:|---:|---:|---|
+| 抢占/轮转/寄存器 | 100 | 46 | 8 | RTOS_PASS，退出 0 |
+| 优先级继承 | 100 | 10 | 8 | RTOS_PASS，退出 0 |
+| 三任务两队列流水线 | 100 | 84 | 140 | RTOS_PASS，退出 0 |
+| 超时与 ISR 通知 | 100 | 11 | 9 | RTOS_PASS，退出 0 |
+| 压力/寄存器 | 150010 | 150012 | 3 | RTOS_PASS，退出 0 |
+| 注入栈损坏 | — | — | — | PANIC 72，非零退出，预期拒绝 |
+| 注入启动后分配 | — | — | — | PANIC 81，非零退出，预期拒绝 |
 
-```sh
-moon check --target all --deny-warn
-moon test --target all --deny-warn
-python scripts/verify.py
-```
+“任务断言”不含每次切换的栈范围/哨兵检查和结束时的场景、分配次数断言。五个正例均为 19 次启动分配、1,488 字节 arena 使用，启动后分配次数不变。这个数不含预留堆、固定任务栈、trace、C 数据和主栈。
 
-独立脚本只使用标准库、MoonBit和Node，不读取相邻工作区。模型、批量案例和测试条目数量分开记录。具体领域边界见README与申报书。
+压力场景保留 4,096 条内部 trace，导出前 256 条；丢弃 295,933 条明确记录。150,012 是内核累计任务身份切换数，另有寄存器 canary 和完成标志核对，不声称导出了每次切换。150,010 ticks 对应配置的虚拟时钟推进，不能换成实体板性能或实际墙钟持续时间。
+
+本地工具：MoonBit compiler `v0.10.15+943464bfa`、xPack ARM GCC 15.2.1、xPack QEMU 9.2.4。Linux CI 使用同版 MoonBit、Ubuntu 的 ARM GCC/QEMU，工具实际版本另见其构建产物。
+
+## 宿主与公共验证
+
+本地 JS、Wasm、Wasm-GC 分别实际通过 16 条测试；全后端静态检查通过。Windows 缺少 MSVC，未把静态检查冒称宿主 native 执行。
+
+[公共验证 42244932557](https://github.com/btlqql/moon-deadline/actions/runs/42244932557) 对代码基线 `cab0269664190c9064eb93402f73b82550295531` 已完成且成功：JS/Wasm/Wasm-GC/native 各 16 条测试、48 组分析器独立参考模型，另一个独立 Linux 作业重新编译并运行 5 组 Cortex-M3 场景和 2 组故障注入。宿主 native 与 Cortex-M3 裸机执行分别记录。
+
+## 验证覆盖与限制
+
+RTOS 单元测试覆盖：同级轮转、优先级唤醒、满队列阻塞发送恰好一次、超时清理、传递继承链、锁等待环拒绝、32 位时钟回绕、同 tick 令牌守恒、任务退出清理/锁移交/槽复用、所有固定容量边界、4,096 次混合 FIFO 操作与独立参考状态一致。
+
+QEMU 执行覆盖了 Cortex-M3 上下文、异常和内核路径，不覆盖实体板时钟误差、DMA、外部中断嵌套、FPU、多核、MPU 隔离、硬实时 WCET 或生产可靠性认证。
