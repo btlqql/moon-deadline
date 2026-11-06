@@ -1,0 +1,7 @@
+supported_targets = "native"
+
+import {
+  "btlqql/moon_deadline/rtos" @rt,
+}
+
+pkgtype(kind: "foreign_library")
