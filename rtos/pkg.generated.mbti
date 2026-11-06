@@ -1,0 +1,63 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "btlqql/moon_deadline/rtos"
+
+// Values
+
+// Errors
+
+// Types and methods
+pub struct Kernel {
+  state : FixedArray[Int]
+  base : FixedArray[Int]
+  effective : FixedArray[Int]
+  ready : FixedArray[Int64]
+  wait_kind : FixedArray[Int]
+  wait_obj : FixedArray[Int]
+  wait_value : FixedArray[Int]
+  deadline : FixedArray[Int64]
+  timed : FixedArray[Int]
+  result : FixedArray[Int]
+  mail : FixedArray[Int]
+  sem_count : FixedArray[Int]
+  sem_max : FixedArray[Int]
+  mutex_owner : FixedArray[Int]
+  queue_cap : FixedArray[Int]
+  queue_head : FixedArray[Int]
+  queue_count : FixedArray[Int]
+  queue_data : FixedArray[Int]
+  mut current : Int
+  mut clock : Int64
+  mut serial : Int64
+  mut switches : Int
+}
+pub fn Kernel::advance(Self, Int) -> Int
+pub fn Kernel::completion(Self, Int) -> Int
+pub fn Kernel::create(Self, Int, Int) -> Int
+pub fn Kernel::exit_task(Self, Int) -> Int
+pub fn Kernel::give(Self, Int) -> Int
+pub fn Kernel::lock(Self, Int, Int, Int) -> Int
+pub fn Kernel::mutex(Self, Int) -> Int
+pub fn Kernel::new() -> Self
+pub fn Kernel::now(Self) -> Int64
+pub fn Kernel::owner(Self, Int) -> Int
+pub fn Kernel::pick(Self) -> Int
+pub fn Kernel::priority(Self, Int) -> Int
+pub fn Kernel::queue(Self, Int, Int) -> Int
+pub fn Kernel::queue_size(Self, Int) -> Int
+pub fn Kernel::receive(Self, Int, Int, Int) -> Int
+pub fn Kernel::received(Self, Int) -> Int
+pub fn Kernel::running(Self) -> Int
+pub fn Kernel::semaphore(Self, Int, Int, Int) -> Int
+pub fn Kernel::semaphore_count(Self, Int) -> Int
+pub fn Kernel::send(Self, Int, Int, Int, Int) -> Int
+pub fn Kernel::send_isr(Self, Int, Int) -> Int
+pub fn Kernel::sleep(Self, Int, Int) -> Int
+pub fn Kernel::switch_count(Self) -> Int
+pub fn Kernel::take(Self, Int, Int, Int) -> Int
+pub fn Kernel::task_state(Self, Int) -> Int
+pub fn Kernel::unlock(Self, Int, Int) -> Int
+pub fn Kernel::yield_task(Self, Int) -> Int
+
+// Type aliases
+
+// Traits

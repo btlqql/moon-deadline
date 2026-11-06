@@ -1,0 +1,1 @@
+// Portable, bounded RTOS state transitions. Native port calls under IRQ mask.
